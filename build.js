@@ -1,42 +1,37 @@
 'use strict';
 
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } };
+var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
 (function (THREE) {
 
   'use strict';
 
-  var height = window.innerHeight;
-  var width = window.innerWidth;
-
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+  var camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 1000);
   var r = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   var dom = r.domElement;
   document.body.appendChild(dom);
+  dom.style.position = 'absolute';
+  dom.style.top = dom.style.left = 0;
 
-  window.addEventListener('resize', function () {
-    var height = window.innerHeight;
-    var width = window.innerWidth;
+  var width = undefined;
+  var height = undefined;
+  var resize = function resize() {
+    height = window.innerHeight;
+    width = window.innerWidth;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     r.setSize(width, height);
-  }, false);
+    r.setClearColor(0, 0);
+  };
+  window.addEventListener('resize', resize, false);
+  resize();
 
-  var mx = window.innerWidth * 0.5;
-  var my = window.innerHeight * 0.5;
+  var mouse = { x: width * 0.5, y: height * 0.5 };
   window.addEventListener('mousemove', function (e) {
-    mx = e.clientX;
-    my = e.clientY;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
   }, false);
-
-  r.setSize(width, height);
-  r.setClearColor(0, 0);
-  dom.style.position = 'absolute';
-  dom.style.top = 0;
-  dom.style.left = 0;
-
-  scene.fog = new THREE.Fog(393226, 10, 15);
 
   var geometry = new THREE.BoxGeometry(1, 1, 1);
   var material = new THREE.MeshPhongMaterial({
@@ -46,7 +41,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     shading: THREE.FlatShading
   });
 
-  var cubes = [1].reduce(function (ac, e) {
+  var cubes = [true].reduce(function (ac, e) {
     while (ac.length < 350) {
       ac.push(e);
     }
@@ -54,33 +49,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
   }, [])
   //.fill(true)
   .map(function (c, n) {
-    var t = Date.now();
-    var xd = Math.random() - 0.5;
-    var x = Math.cos(xd) * Math.cos(t / n);
-    var y = Math.cos(xd) * Math.sin(t / n);
-    var z = Math.sin(xd);
-
-    return [x * 3.5, y * 2, -11]; //-z * 0.5 - 12];
-  }).map(function (_ref, i) {
-    var _ref2 = _slicedToArray(_ref, 3);
-
-    var x = _ref2[0];
-    var y = _ref2[1];
-    var z = _ref2[2];
-
+    var x = Math.cos(n) * 3.5;
+    var y = Math.sin(n) * 2;
+    return [x, y, -11];
+  }).map(function (pos, i) {
     var cube = new THREE.Mesh(geometry, material);
     var rotation = cube.rotation;
     var position = cube.position;
 
-    position.set(x, y, z);
+    position.set.apply(position, _toConsumableArray(pos));
+    rotation.y = rotation.x = Math.random() * (Math.PI * 2) * i;
 
-    rotation.y = rotation.x = Math.PI * 2 / 3 * i;
+    cube.userData = {
+      rotSpeed: (1 + Math.random()) * 0.05,
+      vel: new THREE.Vector3(),
+      maxVel: 0.1 + Math.random() * 0.4,
+      fric: 0.992 + Math.random() * 0.005
+    };
 
-    // Move this to userdata
-    cube._rotSpeed = (1 + Math.random()) * 0.05;
-    cube._vel = new THREE.Vector3();
-    cube._maxVel = 0.1 + Math.random() * 0.4;
-    cube._fric = 0.992 + Math.random() * 0.005;
     return cube;
   }).map(function (c) {
     scene.add(c);
@@ -91,31 +77,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
   var forePoint = new THREE.PointLight(16770543, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  forePoint.lookAt(new THREE.Vector3(0, 0, 1));
-  scene.add(forePoint);
-
   var mainColor = new THREE.DirectionalLight(16762255, 0.4);
   mainColor.position.set(0, 1, 1);
+
+  scene.add(forePoint);
   scene.add(mainColor);
-
   scene.add(new THREE.AmbientLight(2368544));
+  scene.fog = new THREE.Fog(393226, 10, 15);
 
-  var last = undefined;
-  var start = undefined;
-  var dt = undefined;
-
-  function cubanimate(time) {
-    if (!last) {
-      last = start = time;
-    }
-    dt = time - last;
-    last = time;
-
-    time *= 0.0001;
-    requestAnimationFrame(cubanimate);
+  (function tick() {
 
     // Mouse handling
-    var mouseVec = new THREE.Vector3(mx / width * 2 - 1, -(my / height) * 2 + 1, 0.5);
+    var mouseVec = new THREE.Vector3(mouse.x / width * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
     var mouseDir = mouseVec.sub(camera.position).normalize();
     var distance = -camera.position.z / mouseDir.z + 12;
@@ -123,22 +96,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
     // Move cubes
     cubes.forEach(function (c) {
+      var d = c.userData;
+
       // Rotation
-      c.rotation.x += c._rotSpeed * Math.sin(Date.now() / 5000);
-      c.rotation.y += c._rotSpeed * Math.cos(Date.now() / 5000);
+      c.rotation.x += d.rotSpeed * Math.sin(Date.now() / 5000);
+      c.rotation.y += d.rotSpeed * Math.cos(Date.now() / 5000);
 
       // Velocity
       var dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
-      c._vel.add(dir).clampScalar(-c._maxVel, c._maxVel);
-      c.position.add(c._vel);
+      d.vel.add(dir).clampScalar(-d.maxVel, d.maxVel);
+      c.position.add(d.vel);
 
       // Friction
-      c._vel.multiplyScalar(c._fric);
+      d.vel.multiplyScalar(d.fric);
     });
 
     r.render(scene, camera);
-  }
-  requestAnimationFrame(cubanimate);
+    requestAnimationFrame(tick);
+  })();
 })(window.THREE);
 
 //# sourceMappingURL=build.js.map

@@ -2,37 +2,32 @@
 
   'use strict';
 
-  let height = window.innerHeight;
-  let width = window.innerWidth;
-
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-  const r = new THREE.WebGLRenderer({ alpha: true,  antialias: true });
+  const camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 1000);
+  const r = new THREE.WebGLRenderer({alpha: true,  antialias: true});
   const dom = r.domElement;
   document.body.appendChild(dom);
+  dom.style.position = 'absolute';
+  dom.style.top = dom.style.left = 0;
 
-  window.addEventListener('resize', () => {
-    let height = window.innerHeight;
-    let width = window.innerWidth;
+  let width;
+  let height;
+  const resize = () => {
+    height = window.innerHeight;
+    width = window.innerWidth;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     r.setSize(width, height);
-  }, false);
+    r.setClearColor(0x000000, 0);
+  };
+  window.addEventListener('resize', resize, false);
+  resize();
 
-  let mx = window.innerWidth * 0.5;
-  let my = window.innerHeight * 0.5;
+  let mouse = { x: width * 0.5, y: height * 0.5 };
   window.addEventListener('mousemove', (e) => {
-    mx = e.clientX;
-    my = e.clientY;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
   }, false);
-
-  r.setSize(width, height);
-  r.setClearColor(0x000000, 0);
-  dom.style.position = 'absolute';
-  dom.style.top = 0;
-  dom.style.left = 0;
-
-  scene.fog = new THREE.Fog(0x06000a, 10, 15);
 
   const geometry = new THREE.BoxGeometry(1, 1, 1);
   const material = new THREE.MeshPhongMaterial( {
@@ -42,34 +37,30 @@
     shading: THREE.FlatShading
   });
 
-  const cubes = [1]
+  const cubes = [true]
     .reduce((ac, e) => {
-      while (ac.length < 350) {
-        ac.push(e);
-      }
+      while (ac.length < 350) { ac.push(e); }
       return ac;
     },[])
     //.fill(true)
     .map((c, n) => {
-      const t = Date.now();
-      const xd = Math.random() - 0.5;
-      const x = (Math.cos(xd)) * (Math.cos(t / n));
-      const y = (Math.cos(xd)) * (Math.sin(t / n));
-
-      return [x * 3.5, y* 2, -11];
+      const x = Math.cos(n) * 3.5;
+      const y = Math.sin(n) * 2;
+      return [x, y, -11];
     })
     .map(function (pos, i) {
-      var cube = new THREE.Mesh(geometry, material);
+      const cube = new THREE.Mesh(geometry, material);
       const {rotation, position} = cube;
       position.set(...pos);
+      rotation.y = rotation.x = Math.random() * (Math.PI * 2) * i;
 
-      rotation.y = rotation.x = ((Math.PI * 2) / 3) * i;
+      cube.userData = {
+        rotSpeed: (1 + (Math.random())) * 0.05,
+        vel: new THREE.Vector3(),
+        maxVel: 0.1 + (Math.random() * 0.4),
+        fric: 0.992 + (Math.random() * 0.005)
+      };
 
-      // Move this to userdata
-      cube._rotSpeed = (1 + (Math.random())) * 0.05;
-      cube._vel = new THREE.Vector3();
-      cube._maxVel = 0.1 + (Math.random() * 0.4);
-      cube._fric = 0.992 + (Math.random() * 0.005);
       return cube;
     })
     .map(function (c) {
@@ -81,29 +72,18 @@
 
   const forePoint = new THREE.PointLight(0xffe5ef, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  forePoint.lookAt(new THREE.Vector3(0, 0, 1));
-  scene.add(forePoint);
-
-  var mainColor = new THREE.DirectionalLight(0xffc58f, 0.4);
+  const mainColor = new THREE.DirectionalLight(0xffc58f, 0.4);
   mainColor.position.set(0, 1, 1);
+
+  scene.add(forePoint);
   scene.add(mainColor);
-
   scene.add(new THREE.AmbientLight(0x242420));
+  scene.fog = new THREE.Fog(0x06000a, 10, 15);
 
-  let last;
-  let start;
-  let dt;
-
-  function cubanimate (time) {
-    if (!last) { last = start = time; }
-    dt = time - last;
-    last = time;
-
-    time *= 0.0001;
-    requestAnimationFrame(cubanimate);
+  (function tick () {
 
     // Mouse handling
-    const mouseVec = new THREE.Vector3((mx / width) * 2 - 1, -(my / height) * 2 + 1, 0.5);
+    const mouseVec = new THREE.Vector3((mouse.x / width) * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
     const mouseDir = mouseVec.sub(camera.position).normalize();
     const distance = -camera.position.z / mouseDir.z + 12;
@@ -111,22 +91,25 @@
 
     // Move cubes
     cubes.forEach(c => {
+      const {userData: d} = c;
+
       // Rotation
-      c.rotation.x += c._rotSpeed * (Math.sin(Date.now() / 5000));
-      c.rotation.y += c._rotSpeed * (Math.cos(Date.now() / 5000));
+      c.rotation.x += d.rotSpeed * (Math.sin(Date.now() / 5000));
+      c.rotation.y += d.rotSpeed * (Math.cos(Date.now() / 5000));
 
       // Velocity
       const dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
-      c._vel.add(dir).clampScalar(-c._maxVel, c._maxVel);
-      c.position.add(c._vel);
+      d.vel.add(dir).clampScalar(-d.maxVel, d.maxVel);
+      c.position.add(d.vel);
 
       // Friction
-      c._vel.multiplyScalar(c._fric);
-    });
-    r.render(scene, camera);
-  }
-  requestAnimationFrame(cubanimate);
+      d.vel.multiplyScalar(d.fric);
 
-}(
-  window.THREE
-));
+    });
+
+    r.render(scene, camera);
+    requestAnimationFrame(tick);
+
+  }());
+
+}(window.THREE));
