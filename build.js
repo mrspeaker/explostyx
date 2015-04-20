@@ -38,7 +38,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   }, false);
 
   var geometry = new THREE.BoxGeometry(1, 1, 1);
-  var material = new THREE.MeshPhongMaterial({
+  var material = new THREE.MeshLambertMaterial({
     color: 15790208,
     shininess: 1,
     specular: 0,
@@ -81,7 +81,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 
   var forePoint = new THREE.PointLight(16770543, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  var mainColor = new THREE.DirectionalLight(16762255, 0.5);
+  var mainColor = new THREE.DirectionalLight(16762287, 0.5);
   mainColor.position.set(0, 1, 1);
 
   scene.add(forePoint);

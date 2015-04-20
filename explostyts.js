@@ -34,7 +34,7 @@
   }, false);
 
   const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshPhongMaterial( {
+  const material = new THREE.MeshLambertMaterial( {
     color: 0xf0f080,
     shininess: 1,
     specular: 0x000000,
@@ -76,7 +76,7 @@
 
   const forePoint = new THREE.PointLight(0xffe5ef, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  const mainColor = new THREE.DirectionalLight(0xffc58f, 0.5);
+  const mainColor = new THREE.DirectionalLight(0xffc5af, 0.5);
   mainColor.position.set(0, 1, 1);
 
   scene.add(forePoint);
