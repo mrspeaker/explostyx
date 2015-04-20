@@ -10,8 +10,8 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   var height = undefined;
 
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 1000);
-  var r = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  var camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 30);
+  var r = new THREE.WebGLRenderer({ antialias: true });
   var dom = r.domElement;
   document.body.appendChild(dom);
   dom.style.position = 'absolute';
@@ -81,7 +81,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 
   var forePoint = new THREE.PointLight(16770543, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  var mainColor = new THREE.DirectionalLight(16762255, 0.4);
+  var mainColor = new THREE.DirectionalLight(16762255, 0.5);
   mainColor.position.set(0, 1, 1);
 
   scene.add(forePoint);

@@ -6,8 +6,8 @@
   let height;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 1000);
-  const r = new THREE.WebGLRenderer({alpha: true,  antialias: true});
+  const camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 30);
+  const r = new THREE.WebGLRenderer({antialias: true});
   const dom = r.domElement;
   document.body.appendChild(dom);
   dom.style.position = 'absolute';
@@ -76,7 +76,7 @@
 
   const forePoint = new THREE.PointLight(0xffe5ef, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  const mainColor = new THREE.DirectionalLight(0xffc58f, 0.4);
+  const mainColor = new THREE.DirectionalLight(0xffc58f, 0.5);
   mainColor.position.set(0, 1, 1);
 
   scene.add(forePoint);
