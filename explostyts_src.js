@@ -1,4 +1,6 @@
-(function () {
+(function (THREE) {
+
+  'use strict';
 
   let height = window.innerHeight;
   let width = window.innerWidth;
@@ -26,7 +28,7 @@
 
   r.setSize(width, height);
   r.setClearColor(0x000000, 0);
-  dom.style.position = "absolute";
+  dom.style.position = 'absolute';
   dom.style.top = 0;
   dom.style.left = 0;
 
@@ -48,7 +50,7 @@
       return ac;
     },[])
     //.fill(true)
-    .map(c => [Math.random() * 10 - 5, Math.random() * 10 - 5])
+    .map(() => [Math.random() * 10 - 5, Math.random() * 10 - 5])
     .map(function ([x, y], i) {
       var cube = new THREE.Mesh(geometry, material);
       const {rotation, position} = cube;
@@ -58,7 +60,7 @@
       // Move this to userdata
       cube._rotSpeed = (1 + (Math.random())) * 0.05;
       cube._vel = new THREE.Vector3();
-      cube._maxVel = 0.3 + (Math.random() * 0.5)
+      cube._maxVel = 0.3 + (Math.random() * 0.5);
       cube._fric = 0.992 + (Math.random() * 0.005);
       return cube;
     })
@@ -69,12 +71,12 @@
 
   camera.position.z = 2.9;
 
-  const forePoint = new THREE.PointLight(0xfFe5eF, 1.4, 12);
+  const forePoint = new THREE.PointLight(0xffe5ef, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
-  forePoint.lookAt(new THREE.Vector3(0, 0, 1))
+  forePoint.lookAt(new THREE.Vector3(0, 0, 1));
   scene.add(forePoint);
 
-  var mainColor = new THREE.DirectionalLight(0xFFC58F, 0.4);
+  var mainColor = new THREE.DirectionalLight(0xffc58f, 0.4);
   mainColor.position.set(0, 1, 1);
   scene.add(mainColor);
 
@@ -92,11 +94,6 @@
     time *= 0.0001;
     requestAnimationFrame(cubanimate);
 
-    cubes.forEach(function (c) {
-      c.rotation.x += c._rotSpeed * (Math.sin(Date.now() / 5000));
-      c.rotation.y += c._rotSpeed * (Math.cos(Date.now() / 5000));
-    });
-
     // Mouse handling
     const mouseVec = new THREE.Vector3((mx / width) * 2 - 1, -(my / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
@@ -104,17 +101,25 @@
     const distance = -camera.position.z / mouseDir.z + 12;
     const pos = camera.position.clone().add(mouseDir.multiplyScalar(distance));
 
+    // Move the cputes
+    cubes.forEach(c => {
+      // Rotation
+      c.rotation.x += c._rotSpeed * (Math.sin(Date.now() / 5000));
+      c.rotation.y += c._rotSpeed * (Math.cos(Date.now() / 5000));
 
-    cubes.forEach(cube => {
-      const dir = pos.clone().sub(cube.position).normalize().multiplyScalar(0.01);
-      cube._vel.add(dir).clampScalar(-cube._maxVel, cube._maxVel);
-      cube.position.add(cube._vel);
+      // Velocity
+      const dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
+      c._vel.add(dir).clampScalar(-c._maxVel, c._maxVel);
+      c.position.add(c._vel);
 
-      cube._vel.multiplyScalar(cube._fric)
+      // Friction
+      c._vel.multiplyScalar(c._fric);
     });
 
     r.render(scene, camera);
-  };
+  }
   requestAnimationFrame(cubanimate);
 
-}());
+}(
+  window.THREE
+));

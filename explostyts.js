@@ -2,7 +2,9 @@
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } };
 
-(function () {
+(function (THREE) {
+
+  'use strict';
 
   var height = window.innerHeight;
   var width = window.innerWidth;
@@ -51,7 +53,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     return ac;
   }, [])
   //.fill(true)
-  .map(function (c) {
+  .map(function () {
     return [Math.random() * 10 - 5, Math.random() * 10 - 5];
   }).map(function (_ref, i) {
     var _ref2 = _slicedToArray(_ref, 2);
@@ -104,11 +106,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     time *= 0.0001;
     requestAnimationFrame(cubanimate);
 
-    cubes.forEach(function (c) {
-      c.rotation.x += c._rotSpeed * Math.sin(Date.now() / 5000);
-      c.rotation.y += c._rotSpeed * Math.cos(Date.now() / 5000);
-    });
-
     // Mouse handling
     var mouseVec = new THREE.Vector3(mx / width * 2 - 1, -(my / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
@@ -116,17 +113,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     var distance = -camera.position.z / mouseDir.z + 12;
     var pos = camera.position.clone().add(mouseDir.multiplyScalar(distance));
 
-    cubes.forEach(function (cube) {
-      var dir = pos.clone().sub(cube.position).normalize().multiplyScalar(0.01);
-      cube._vel.add(dir).clampScalar(-cube._maxVel, cube._maxVel);
-      cube.position.add(cube._vel);
+    // Move the cputes
+    cubes.forEach(function (c) {
+      // Rotation
+      c.rotation.x += c._rotSpeed * Math.sin(Date.now() / 5000);
+      c.rotation.y += c._rotSpeed * Math.cos(Date.now() / 5000);
 
-      cube._vel.multiplyScalar(cube._fric);
+      // Velocity
+      var dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
+      c._vel.add(dir).clampScalar(-c._maxVel, c._maxVel);
+      c.position.add(c._vel);
+
+      // Friction
+      c._vel.multiplyScalar(c._fric);
     });
 
     r.render(scene, camera);
-  };
+  }
   requestAnimationFrame(cubanimate);
-})();
+})(window.THREE);
 
 //# sourceMappingURL=explostyts.js.map
