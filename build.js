@@ -6,6 +6,9 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 
   'use strict';
 
+  var width = undefined;
+  var height = undefined;
+
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 1000);
   var r = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -14,15 +17,12 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   dom.style.position = 'absolute';
   dom.style.top = dom.style.left = 0;
 
-  var width = undefined;
-  var height = undefined;
   var resize = function resize() {
     height = window.innerHeight;
     width = window.innerWidth;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     r.setSize(width, height);
-    r.setClearColor(0, 0);
   };
   window.addEventListener('resize', resize, false);
   resize();
@@ -31,6 +31,10 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   window.addEventListener('mousemove', function (e) {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
+  }, false);
+  window.addEventListener('mouseout', function () {
+    mouse.x = width * 0.5;
+    mouse.y = height * 0.5;
   }, false);
 
   var geometry = new THREE.BoxGeometry(1, 1, 1);

@@ -2,6 +2,9 @@
 
   'use strict';
 
+  let width;
+  let height;
+
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 1000);
   const r = new THREE.WebGLRenderer({alpha: true,  antialias: true});
@@ -10,15 +13,12 @@
   dom.style.position = 'absolute';
   dom.style.top = dom.style.left = 0;
 
-  let width;
-  let height;
   const resize = () => {
     height = window.innerHeight;
     width = window.innerWidth;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     r.setSize(width, height);
-    r.setClearColor(0x000000, 0);
   };
   window.addEventListener('resize', resize, false);
   resize();
@@ -27,6 +27,10 @@
   window.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
+  }, false);
+  window.addEventListener('mouseout', () => {
+    mouse.x = width * 0.5;
+    mouse.y = height * 0.5;
   }, false);
 
   const geometry = new THREE.BoxGeometry(1, 1, 1);
