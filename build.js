@@ -40,8 +40,6 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   var geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
   var material = new THREE.MeshLambertMaterial({
     color: 15790246,
-    shininess: 1,
-    specular: 0,
     shading: THREE.FlatShading
   });
 

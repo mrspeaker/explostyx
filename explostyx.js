@@ -34,10 +34,8 @@
   }, false);
 
   const geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
-  const material = new THREE.MeshLambertMaterial( {
+  const material = new THREE.MeshLambertMaterial({
     color: 0xf0f0a6,
-    shininess: 1,
-    specular: 0x000000,
     shading: THREE.FlatShading
   });
 
