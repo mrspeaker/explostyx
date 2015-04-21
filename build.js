@@ -67,6 +67,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
     cube.userData = {
       rotSpeed: (1 + Math.random()) * 0.05,
       vel: new THREE.Vector3(),
+      dir: new THREE.Vector3(),
       maxVel: 0.1 + Math.random() * 0.4,
       fric: 0.992 + Math.random() * 0.005
     };
@@ -89,31 +90,43 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   scene.add(new THREE.AmbientLight(2368544));
   scene.fog = new THREE.Fog(393226, 10, 16);
 
+  var mouseVec = new THREE.Vector3();
+  var pos = new THREE.Vector3();
+
   (function tick() {
 
     // Mouse handling
-    var mouseVec = new THREE.Vector3(mouse.x / width * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
+    mouseVec.set(mouse.x / width * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
     var mouseDir = mouseVec.sub(camera.position).normalize();
     var distance = -camera.position.z / mouseDir.z + 12;
-    var pos = camera.position.clone().add(mouseDir.multiplyScalar(distance));
+    pos.addVectors(camera.position, mouseDir.multiplyScalar(distance));
 
     // Move cubes
-    cubes.forEach(function (c) {
-      var d = c.userData;
+    cubes.forEach(function (cube) {
+      var rotation = cube.rotation;
+      var position = cube.position;
+      var userData = cube.userData;
+      var dir = userData.dir;
+      var vel = userData.vel;
+      var rotSpeed = userData.rotSpeed;
+      var maxVel = userData.maxVel;
+      var fric = userData.fric;
+
+      var dt = Date.now() / 5000;
 
       // Rotation
-      c.rotation.x += d.rotSpeed * Math.sin(Date.now() / 5000);
-      c.rotation.y += d.rotSpeed * Math.cos(Date.now() / 5000);
-      c.rotation.z += d.rotSpeed * Math.cos(Date.now() / 5000);
+      rotation.x += rotSpeed * Math.sin(dt);
+      rotation.y += rotSpeed * Math.cos(dt);
+      rotation.z += rotSpeed * Math.cos(dt);
 
       // Velocity
-      var dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
-      d.vel.add(dir).clampScalar(-d.maxVel, d.maxVel);
-      c.position.add(d.vel);
+      dir.subVectors(pos, position).normalize().multiplyScalar(0.01);
+      vel.add(dir).clampScalar(-maxVel, maxVel);
+      position.add(vel);
 
       // Friction
-      d.vel.multiplyScalar(d.fric);
+      vel.multiplyScalar(fric);
     });
 
     r.render(scene, camera);

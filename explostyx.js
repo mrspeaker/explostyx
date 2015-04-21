@@ -61,6 +61,7 @@
       cube.userData = {
         rotSpeed: (1 + (Math.random())) * 0.05,
         vel: new THREE.Vector3(),
+        dir: new THREE.Vector3(),
         maxVel: 0.1 + (Math.random() * 0.4),
         fric: 0.992 + (Math.random() * 0.005)
       };
@@ -84,31 +85,37 @@
   scene.add(new THREE.AmbientLight(0x242420));
   scene.fog = new THREE.Fog(0x06000a, 10, 16);
 
+  const mouseVec = new THREE.Vector3();
+  const pos = new THREE.Vector3();
+
   (function tick () {
 
     // Mouse handling
-    const mouseVec = new THREE.Vector3((mouse.x / width) * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
+    mouseVec.set((mouse.x / width) * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
     const mouseDir = mouseVec.sub(camera.position).normalize();
     const distance = -camera.position.z / mouseDir.z + 12;
-    const pos = camera.position.clone().add(mouseDir.multiplyScalar(distance));
+    pos.addVectors(camera.position, mouseDir.multiplyScalar(distance));
 
     // Move cubes
-    cubes.forEach(c => {
-      const {userData: d} = c;
+    cubes.forEach(cube => {
+
+      const { rotation, position, userData } = cube;
+      const { dir, vel, rotSpeed, maxVel, fric } = userData;
+      const dt = Date.now() / 5000;
 
       // Rotation
-      c.rotation.x += d.rotSpeed * (Math.sin(Date.now() / 5000));
-      c.rotation.y += d.rotSpeed * (Math.cos(Date.now() / 5000));
-      c.rotation.z += d.rotSpeed * (Math.cos(Date.now() / 5000));
+      rotation.x += rotSpeed * (Math.sin(dt));
+      rotation.y += rotSpeed * (Math.cos(dt));
+      rotation.z += rotSpeed * (Math.cos(dt));
 
       // Velocity
-      const dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
-      d.vel.add(dir).clampScalar(-d.maxVel, d.maxVel);
-      c.position.add(d.vel);
+      dir.subVectors(pos, position).normalize().multiplyScalar(0.01);
+      vel.add(dir).clampScalar(-maxVel, maxVel);
+      position.add(vel);
 
       // Friction
-      d.vel.multiplyScalar(d.fric);
+      vel.multiplyScalar(fric);
 
     });
 
