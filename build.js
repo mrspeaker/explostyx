@@ -32,12 +32,15 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   // Track the mouse position
   var mouse = { x: width * 0.5, y: height * 0.5 };
   window.addEventListener('mousemove', function (e) {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+    mouse.x = e.clientX;mouse.y = e.clientY;
   }, false);
   window.addEventListener('mouseout', function () {
-    mouse.x = width * 0.5;
-    mouse.y = height * 0.5;
+    mouse.x = width * 0.5;mouse.y = height * 0.5;
+  }, false);
+  window.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+    mouse.x = e.targetTouches[0].clientX;
+    mouse.y = e.targetTouches[0].clientY;
   }, false);
 
   // Make some styx to explo!
@@ -103,7 +106,33 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   var mouseVec = new THREE.Vector3();
   var pos = new THREE.Vector3();
 
-  (function tick() {
+  var last = undefined,
+      start = undefined,
+      dt = undefined;
+  var cpu_run = 0;
+
+  (function tick(t) {
+
+    if (!last) {
+      last = start = t;
+    }
+    dt = t - last;
+    last = t;
+
+    // Dodgy CPU fixer: remove geom until it runs ok XD
+    if (dt > 35) {
+      if (cpu_run++ > 5 && cubes.length > 30) {
+        var remove = cubes.length * 0.5 | 0;
+        for (var i = 0; i < remove; i++) {
+          var _last = cubes[cubes.length - 1];
+          scene.remove(_last);
+          cubes.pop();
+        }
+        cpu_run = 0;
+      }
+    } else {
+      cpu_run = 0;
+    }
 
     // Camera-to-mouse distance
     mouseVec.set(mouse.x / width * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
@@ -141,7 +170,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 
     r.render(scene, camera);
     requestAnimationFrame(tick);
-  })();
+  })(0);
 })(window.THREE);
 
 //# sourceMappingURL=build.js.map
