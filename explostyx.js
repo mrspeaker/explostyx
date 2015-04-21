@@ -7,7 +7,7 @@
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 30);
-  const r = new THREE.WebGLRenderer({antialias: true});
+  const r = new THREE.WebGLRenderer({ antialias: true });
   const dom = r.domElement;
   document.body.appendChild(dom);
   dom.style.position = 'absolute';
@@ -24,7 +24,7 @@
   resize();
 
   let mouse = { x: width * 0.5, y: height * 0.5 };
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('mousemove', e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
   }, false);
@@ -34,39 +34,36 @@
   }, false);
 
   const geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
-  const material = new THREE.MeshLambertMaterial({
-    color: 0xf0f0a6,
-    shading: THREE.FlatShading
-  });
+  const material = new THREE.MeshLambertMaterial({ color: 0xf0f0a6 });
 
   const cubes = [true]
     .reduce((ac, e) => {
       while (ac.length < 650) { ac.push(e); }
       return ac;
     },[])
-    //.fill(true)
-    .map((c, n) => {
-      const x = Math.cos(n) * 3.5;
-      const y = Math.sin(n) * 2;
+    .map((c, i) => {
+      const x = Math.cos(i) * 3.5;
+      const y = Math.sin(i) * 2;
       return [x, y, -11];
     })
-    .map(function (pos, i) {
+    .map((pos, i) => {
       const cube = new THREE.Mesh(geometry, material);
-      const {rotation, position} = cube;
+      const { rotation, position } = cube;
+
       position.set(...pos);
       rotation.y = rotation.x = Math.random() * (Math.PI * 2) * i;
 
       cube.userData = {
-        rotSpeed: (1 + (Math.random())) * 0.05,
         vel: new THREE.Vector3(),
         dir: new THREE.Vector3(),
+        rotSpeed: (1 + (Math.random())) * 0.05,
         maxVel: 0.1 + (Math.random() * 0.4),
         fric: 0.992 + (Math.random() * 0.005)
       };
 
       return cube;
     })
-    .map(function (c) {
+    .map(c => {
       scene.add(c);
       return c;
     });

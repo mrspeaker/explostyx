@@ -38,21 +38,16 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   }, false);
 
   var geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
-  var material = new THREE.MeshLambertMaterial({
-    color: 15790246,
-    shading: THREE.FlatShading
-  });
+  var material = new THREE.MeshLambertMaterial({ color: 15790246 });
 
   var cubes = [true].reduce(function (ac, e) {
     while (ac.length < 650) {
       ac.push(e);
     }
     return ac;
-  }, [])
-  //.fill(true)
-  .map(function (c, n) {
-    var x = Math.cos(n) * 3.5;
-    var y = Math.sin(n) * 2;
+  }, []).map(function (c, i) {
+    var x = Math.cos(i) * 3.5;
+    var y = Math.sin(i) * 2;
     return [x, y, -11];
   }).map(function (pos, i) {
     var cube = new THREE.Mesh(geometry, material);
@@ -63,9 +58,9 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
     rotation.y = rotation.x = Math.random() * (Math.PI * 2) * i;
 
     cube.userData = {
-      rotSpeed: (1 + Math.random()) * 0.05,
       vel: new THREE.Vector3(),
       dir: new THREE.Vector3(),
+      rotSpeed: (1 + Math.random()) * 0.05,
       maxVel: 0.1 + Math.random() * 0.4,
       fric: 0.992 + Math.random() * 0.005
     };
