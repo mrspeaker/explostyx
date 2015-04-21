@@ -33,7 +33,7 @@
     mouse.y = height * 0.5;
   }, false);
 
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
   const material = new THREE.MeshLambertMaterial( {
     color: 0xf0f080,
     shininess: 1,
@@ -43,7 +43,7 @@
 
   const cubes = [true]
     .reduce((ac, e) => {
-      while (ac.length < 350) { ac.push(e); }
+      while (ac.length < 650) { ac.push(e); }
       return ac;
     },[])
     //.fill(true)
@@ -82,7 +82,7 @@
   scene.add(forePoint);
   scene.add(mainColor);
   scene.add(new THREE.AmbientLight(0x242420));
-  scene.fog = new THREE.Fog(0x06000a, 10, 15);
+  scene.fog = new THREE.Fog(0x06000a, 10, 16);
 
   (function tick () {
 
@@ -100,6 +100,7 @@
       // Rotation
       c.rotation.x += d.rotSpeed * (Math.sin(Date.now() / 5000));
       c.rotation.y += d.rotSpeed * (Math.cos(Date.now() / 5000));
+      c.rotation.z += d.rotSpeed * (Math.cos(Date.now() / 5000));
 
       // Velocity
       const dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);

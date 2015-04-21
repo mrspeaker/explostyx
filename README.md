@@ -1,8 +1,8 @@
-# Explostyts
+# Explostyx
 
 by Mr Speaker.
 
 
 ## Compile to olden days JavaScript:
 
-    babel explostyts.js -o build.js --source-maps
+    babel explostyx.js -o build.js --source-maps

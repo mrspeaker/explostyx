@@ -37,7 +37,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
     mouse.y = height * 0.5;
   }, false);
 
-  var geometry = new THREE.BoxGeometry(1, 1, 1);
+  var geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
   var material = new THREE.MeshLambertMaterial({
     color: 15790208,
     shininess: 1,
@@ -46,7 +46,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   });
 
   var cubes = [true].reduce(function (ac, e) {
-    while (ac.length < 350) {
+    while (ac.length < 650) {
       ac.push(e);
     }
     return ac;
@@ -87,7 +87,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   scene.add(forePoint);
   scene.add(mainColor);
   scene.add(new THREE.AmbientLight(2368544));
-  scene.fog = new THREE.Fog(393226, 10, 15);
+  scene.fog = new THREE.Fog(393226, 10, 16);
 
   (function tick() {
 
@@ -105,6 +105,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
       // Rotation
       c.rotation.x += d.rotSpeed * Math.sin(Date.now() / 5000);
       c.rotation.y += d.rotSpeed * Math.cos(Date.now() / 5000);
+      c.rotation.z += d.rotSpeed * Math.cos(Date.now() / 5000);
 
       // Velocity
       var dir = pos.clone().sub(c.position).normalize().multiplyScalar(0.01);
