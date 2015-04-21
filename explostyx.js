@@ -5,6 +5,7 @@
   let width;
   let height;
 
+  // Set up the Three.js scene, camera and renderer
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 30);
   const r = new THREE.WebGLRenderer({ antialias: true });
@@ -13,6 +14,7 @@
   dom.style.position = 'absolute';
   dom.style.top = dom.style.left = 0;
 
+  // Handle setting window size, and resize
   const resize = () => {
     height = window.innerHeight;
     width = window.innerWidth;
@@ -23,7 +25,8 @@
   window.addEventListener('resize', resize, false);
   resize();
 
-  let mouse = { x: width * 0.5, y: height * 0.5 };
+  // Track the mouse position
+  const mouse = { x: width * 0.5, y: height * 0.5 };
   window.addEventListener('mousemove', e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
@@ -33,19 +36,26 @@
     mouse.y = height * 0.5;
   }, false);
 
+  // Make some styx to explo!
   const geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
   const material = new THREE.MeshLambertMaterial({ color: 0xf0f0a6 });
 
   const cubes = [true]
+
+    // Array.fill not supported in chrome yet :(
     .reduce((ac, e) => {
       while (ac.length < 650) { ac.push(e); }
       return ac;
     },[])
+
+    // Pick random start pos
     .map((c, i) => {
       const x = Math.cos(i) * 3.5;
       const y = Math.sin(i) * 2;
       return [x, y, -11];
     })
+
+    // Create the mesh and set individual parameters
     .map((pos, i) => {
       const cube = new THREE.Mesh(geometry, material);
       const { rotation, position } = cube;
@@ -63,6 +73,8 @@
 
       return cube;
     })
+
+    // Add them all to the scene
     .map(c => {
       scene.add(c);
       return c;
@@ -70,6 +82,7 @@
 
   camera.position.z = 2.9;
 
+  // Some lighting
   const forePoint = new THREE.PointLight(0xffe5ef, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
   const mainColor = new THREE.DirectionalLight(0xffc5af, 0.5);
@@ -85,14 +98,14 @@
 
   (function tick () {
 
-    // Mouse handling
+    // Camera-to-mouse distance
     mouseVec.set((mouse.x / width) * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
     const mouseDir = mouseVec.sub(camera.position).normalize();
     const distance = -camera.position.z / mouseDir.z + 12;
     pos.addVectors(camera.position, mouseDir.multiplyScalar(distance));
 
-    // Move cubes
+    // Move the styx
     cubes.forEach(cube => {
 
       const { rotation, position, userData } = cube;
@@ -104,7 +117,7 @@
       rotation.y += rotSpeed * (Math.cos(dt));
       rotation.z += rotSpeed * (Math.cos(dt));
 
-      // Velocity
+      // Velocity (is relative to distance from mouse)
       dir.subVectors(pos, position).normalize().multiplyScalar(0.01);
       vel.add(dir).clampScalar(-maxVel, maxVel);
       position.add(vel);

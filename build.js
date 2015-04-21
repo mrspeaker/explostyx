@@ -9,6 +9,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   var width = undefined;
   var height = undefined;
 
+  // Set up the Three.js scene, camera and renderer
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(75, 0.75, 0.1, 30);
   var r = new THREE.WebGLRenderer({ antialias: true });
@@ -17,6 +18,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   dom.style.position = 'absolute';
   dom.style.top = dom.style.left = 0;
 
+  // Handle setting window size, and resize
   var resize = function resize() {
     height = window.innerHeight;
     width = window.innerWidth;
@@ -27,6 +29,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
   window.addEventListener('resize', resize, false);
   resize();
 
+  // Track the mouse position
   var mouse = { x: width * 0.5, y: height * 0.5 };
   window.addEventListener('mousemove', function (e) {
     mouse.x = e.clientX;
@@ -37,19 +40,29 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
     mouse.y = height * 0.5;
   }, false);
 
+  // Make some styx to explo!
   var geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
   var material = new THREE.MeshLambertMaterial({ color: 15790246 });
 
-  var cubes = [true].reduce(function (ac, e) {
+  var cubes = [true]
+
+  // Array.fill not supported in chrome yet :(
+  .reduce(function (ac, e) {
     while (ac.length < 650) {
       ac.push(e);
     }
     return ac;
-  }, []).map(function (c, i) {
+  }, [])
+
+  // Pick random start pos
+  .map(function (c, i) {
     var x = Math.cos(i) * 3.5;
     var y = Math.sin(i) * 2;
     return [x, y, -11];
-  }).map(function (pos, i) {
+  })
+
+  // Create the mesh and set individual parameters
+  .map(function (pos, i) {
     var cube = new THREE.Mesh(geometry, material);
     var rotation = cube.rotation;
     var position = cube.position;
@@ -66,13 +79,17 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
     };
 
     return cube;
-  }).map(function (c) {
+  })
+
+  // Add them all to the scene
+  .map(function (c) {
     scene.add(c);
     return c;
   });
 
   camera.position.z = 2.9;
 
+  // Some lighting
   var forePoint = new THREE.PointLight(16770543, 1.4, 12);
   forePoint.position.set(0, 0, 2.9);
   var mainColor = new THREE.DirectionalLight(16762287, 0.5);
@@ -88,14 +105,14 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 
   (function tick() {
 
-    // Mouse handling
+    // Camera-to-mouse distance
     mouseVec.set(mouse.x / width * 2 - 1, -(mouse.y / height) * 2 + 1, 0.5);
     mouseVec.unproject(camera);
     var mouseDir = mouseVec.sub(camera.position).normalize();
     var distance = -camera.position.z / mouseDir.z + 12;
     pos.addVectors(camera.position, mouseDir.multiplyScalar(distance));
 
-    // Move cubes
+    // Move the styx
     cubes.forEach(function (cube) {
       var rotation = cube.rotation;
       var position = cube.position;
@@ -113,7 +130,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
       rotation.y += rotSpeed * Math.cos(dt);
       rotation.z += rotSpeed * Math.cos(dt);
 
-      // Velocity
+      // Velocity (is relative to distance from mouse)
       dir.subVectors(pos, position).normalize().multiplyScalar(0.01);
       vel.add(dir).clampScalar(-maxVel, maxVel);
       position.add(vel);
