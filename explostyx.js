@@ -31,8 +31,9 @@
   window.addEventListener('mouseout', () => { mouse.x = width * 0.5; mouse.y = height * 0.5; }, false);
   window.addEventListener('touchmove', e => {
     e.preventDefault();
-    mouse.x = e.targetTouches[0].clientX;
-    mouse.y = e.targetTouches[0].clientY;
+    const {clientX, clientY} = e.targetTouches[0];
+    mouse.x = clientX;
+    mouse.y = clientY;
   }, false);
 
   // Make some styx to explo!
