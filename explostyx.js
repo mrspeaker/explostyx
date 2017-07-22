@@ -12,6 +12,7 @@
   dom.style.top = dom.style.left = 0;
 
   // Handle setting window size, and resize
+  const addEv = (ev, f) => window.addEventListener(ev, f, false);
   const resize = () => {
     height = window.innerHeight;
     width = window.innerWidth;
@@ -19,37 +20,25 @@
     camera.updateProjectionMatrix();
     r.setSize(width, height);
   };
-  window.addEventListener("resize", resize, false);
+  addEv("resize", resize, false);
   resize();
 
   // Track the mouse position
   const mouse = { x: width * 0.5, y: height * 0.5 };
-  window.addEventListener(
-    "mousemove",
-    e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    },
-    false
-  );
-  window.addEventListener(
-    "mouseout",
-    () => {
-      mouse.x = width * 0.5;
-      mouse.y = height * 0.5;
-    },
-    false
-  );
-  window.addEventListener(
-    "touchmove",
-    e => {
-      e.preventDefault();
-      const { clientX, clientY } = e.targetTouches[0];
-      mouse.x = clientX;
-      mouse.y = clientY;
-    },
-    false
-  );
+  addEv("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+  addEv("mouseout", () => {
+    mouse.x = width * 0.5;
+    mouse.y = height * 0.5;
+  });
+  addEv("touchmove", e => {
+    e.preventDefault();
+    const { clientX, clientY } = e.targetTouches[0];
+    mouse.x = clientX;
+    mouse.y = clientY;
+  });
 
   // Make some styx to explo!
   const geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
